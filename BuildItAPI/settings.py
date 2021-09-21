@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'Usuario',
+    'Treinos',
+    'Exercicios'
 ]
 
 MIDDLEWARE = [
