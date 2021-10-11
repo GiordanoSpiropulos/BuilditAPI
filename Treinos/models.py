@@ -3,16 +3,16 @@ from django.db import models
 from django.db.models.fields import PositiveIntegerField
 
 
-# Create your models here.
+def upload_to_image(instance, filename):
+    return 'treino/' + f"{instance.id}-{filename}"
 
-class Treinos(models.Model):
+
+class Treino(models.Model):
+    id = models.BigAutoField(primary_key=True)
     usuarioId = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    nomeTreino = models.CharField(max_length=255, unique=True)
-    tempoMinDuracao = models.PositiveIntegerField(null=True)
-    tempoMaxDuracao = PositiveIntegerField(null=True)
+    nomeTreino = models.CharField(max_length=255)
+    tempoMinDuracao = models.CharField(max_length=255, null=True,)
     numeroSeries = PositiveIntegerField()
-    tipoTreino = PositiveIntegerField()
+    tipoTreino = PositiveIntegerField(default=0)
     exercicioJson = models.JSONField()
-
-    def __str__(self):
-        return self.nomeTreino
+    image = models.ImageField(upload_to=upload_to_image, blank=True, null=True)

@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .models import Treinos
+from .models import Treino
 
 
 class TreinoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Treinos
-        fields = ['id', 'nomeTreino', 'tempoMinDuracao',
-                  'tempoMaxDuracao', 'numeroSeries', 'tipoTreino', 'usuarioId', 'exercicioJson']
+        model = Treino
+        fields = ['id', 'nomeTreino', 'tempoMinDuracao', 'numeroSeries',
+                  'tipoTreino', 'usuarioId', 'exercicioJson', 'image']

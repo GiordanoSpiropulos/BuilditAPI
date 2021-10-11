@@ -1,7 +1,6 @@
-from Treinos.models import Treinos
 from django.contrib import admin
-from .models import Treinos
+from .models import Treino
 
 
-admin.site.register(Treinos)
+admin.site.register(Treino)
 # Register your models here.

@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import Exercicios
+from .models import Exercicio
 
 
 class ExercicioSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Exercicios
-        fields = ['id', 'nomeExercicio']
+        model = Exercicio
+        fields = ['id', 'nomeExercicio', 'descricao', 'image', 'tipoExercicio']
