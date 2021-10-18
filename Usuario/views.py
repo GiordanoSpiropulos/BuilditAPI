@@ -2,7 +2,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from .models import Usuario
 from .serializers import UsuarioSerializer
 from rest_framework.response import Response
-from rest_framework import generics
+from rest_framework import generics, mixins
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -45,3 +45,14 @@ class UserLoginView(generics.GenericAPIView):
         refreshToken = RefreshToken.for_user(user)
 
         return Response({'access': str(refreshToken.access_token), 'refresh': str(refreshToken)})
+
+
+class UserAPIView(generics.GenericAPIView, mixins.RetrieveModelMixin):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UsuarioSerializer
+    queryset = Usuario.objects.all()
+
+    lookup_field = 'id'
+
+    def get(self, request, id):
+        return self.retrieve(id)
