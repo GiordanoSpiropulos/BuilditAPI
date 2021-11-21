@@ -12,7 +12,9 @@ class UserRegisterView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        request.data._mutable = True
         request.data['email'] = request.data['email'].lower()
+        request.data._mutable = False
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
