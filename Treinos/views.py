@@ -113,6 +113,9 @@ class TreinosJsonApiPostView(generics.GenericAPIView, mixins.DestroyModelMixin, 
     def post(self, request):
         file_obj = request.FILES['file']
 
+        if os.path.exists('temp/upload.zip'):
+            os.remove('temp/upload.zip')
+
         with open('temp/upload.zip', 'wb+') as f:
             for chunk in file_obj.chunks():
                 f.write(chunk)
