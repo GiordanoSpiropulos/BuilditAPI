@@ -60,7 +60,6 @@ class TreinosByIdAPIView(generics.GenericAPIView, mixins.DestroyModelMixin, mixi
 
 class TreinosJsonApiView(generics.GenericAPIView, mixins.DestroyModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
     serializer_class = TreinoSerializer
-    # permission_classes = [IsAuthenticated]
     queryset = Treino.objects.all()
 
     def get(self, request, user_id):
@@ -99,9 +98,48 @@ class TreinosJsonApiView(generics.GenericAPIView, mixins.DestroyModelMixin, mixi
         response.content = FileWrapper(open(zip_file_name, 'rb'))
 
         response['Content-type'] = 'application/zip'
-        response['Content-Disposition'] = 'download; filename="{}"'.format(zip_file_name)
+        response['Content-Disposition'] = 'download; filename="{}"'.format(
+            zip_file_name)
 
         return response
+
+
+class TreinosJsonApiPostView(generics.GenericAPIView, mixins.DestroyModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
+    serializer_class = TreinoSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = Treino.objects.all()
+    lookup_field = 'id'
+
+    def post(self, request):
+        file_obj = request.FILES['file']
+
+        with open('temp/upload.zip', 'wb+') as f:
+            for chunk in file_obj.chunks():
+                f.write(chunk)
+
+        stringData = ''
+
+        with ZipFile('temp/upload.zip', 'r') as zip:
+            if 'treinos.json' not in zip.namelist():
+                return Response('erro arquivo inválido')
+            stringData = zip.read('treinos.json').decode('utf-8')
+
+        data = json.loads(stringData, encoding='utf-8')
+
+        mappedObject = [Treino(
+            numeroSeries=vals['numeroSeries'],
+            tempoMinDuracao=vals['tempoMinDuracao'],
+            tipoTreino=vals['tipoTreino'],
+            nomeTreino=vals['nomeTreino'],
+            image=vals['image'],
+            exercicioJson=vals['exercicioJson'],
+            usuarioId_id=vals['usuarioId']
+        ) for vals in data]
+
+        Treino.objects.bulk_create(mappedObject, batch_size=100)
+
+        return Response()
+
 
 # Treinos pelo Id Usuario
 class TreinosByUserIdAPIView(generics.GenericAPIView):
