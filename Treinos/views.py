@@ -124,7 +124,7 @@ class TreinosJsonApiPostView(generics.GenericAPIView, mixins.DestroyModelMixin, 
                 return Response('erro arquivo inválido')
             stringData = zip.read('treinos.json').decode('utf-8')
 
-        data = json.loads(stringData, encoding='utf-8')
+        data = json.loads(stringData)
 
         mappedObject = [Treino(
             numeroSeries=vals['numeroSeries'],
