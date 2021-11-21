@@ -1,8 +1,14 @@
+import json
+import os
+from wsgiref.util import FileWrapper
+from zipfile import ZipFile
+
+from rest_framework import generics, mixins, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from .models import Treino
 from .serializers import TreinoSerializer
-from rest_framework.response import Response
-from rest_framework import status, generics, mixins
-from rest_framework.permissions import IsAuthenticated
 
 # Criação Treino
 
@@ -51,6 +57,51 @@ class TreinosByIdAPIView(generics.GenericAPIView, mixins.DestroyModelMixin, mixi
     def delete(self, request, id):
         return self.destroy(request, id)
 
+
+class TreinosJsonApiView(generics.GenericAPIView, mixins.DestroyModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
+    serializer_class = TreinoSerializer
+    # permission_classes = [IsAuthenticated]
+    queryset = Treino.objects.all()
+
+    def get(self, request, user_id):
+        treinos = Treino.objects.all().filter(usuarioId_id=user_id)
+        serializer = TreinoSerializer(treinos, many=True)
+
+        temp_folder = 'temp'
+        file_name = os.path.join(temp_folder, 'treinos.json')
+        zip_file_name = os.path.join(temp_folder, 'treinos.zip')
+
+        if not os.path.exists(temp_folder):
+            os.mkdir(temp_folder)
+
+        # clearing cached
+        if os.path.exists(zip_file_name):
+            os.remove(zip_file_name)
+
+        if os.path.exists(file_name):
+            os.remove(file_name)
+
+        response = Response()
+
+        # mounting the saving json
+        jsonStr = json.dumps(serializer.data)
+
+        # opening and saving the data in json file
+        with open(file_name, mode='w', encoding='utf-8') as f:
+            f.write(jsonStr)
+
+        # writing the zip file
+        with ZipFile(zip_file_name, 'w') as zip:
+            zip.write(file_name, os.path.basename(file_name))
+
+        open_bytes = FileWrapper(zip)
+
+        response.content = FileWrapper(open(zip_file_name, 'rb'))
+
+        response['Content-type'] = 'application/zip'
+        response['Content-Disposition'] = 'download; filename="{}"'.format(zip_file_name)
+
+        return response
 
 # Treinos pelo Id Usuario
 class TreinosByUserIdAPIView(generics.GenericAPIView):
